@@ -3,49 +3,54 @@ local setmetatable = setmetatable
 local _M = require('apicast.policy').new('httpbasicauth', '0.1')
 local mt = { __index = _M }
 
+function mysplit (inputstr, sep)
+	if sep == nil then
+	   sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do 
+	   table.insert(t, str)
+	end
+	return t
+ end
 
 function _M.new(config)
-		
 	auths_configured = config.http_basic_users
 	user_authenticated = false
-	
-   return setmetatable({}, mt)
-end
-
-function _M:init()
-  -- do work when nginx master process starts
-end
-
-function _M:init_worker()
-  -- do work when nginx worker process is forked from master
+    return setmetatable({}, mt)
 end
 
 function _M:rewrite()
-
-	-- For debug puprose :
-		file = io.open("/tmp/http_basic_auth.lua.out", "a")
-		io.output(file)
-	
 	local auth_header = ngx.var.http_authorization
 	
-	io.write("\n\nauth_header : " .. tostring(auth_header) .. "\n")
+	-- Ngx.log output is managed using APICAST_LOG_FILE and APICAST_LOG_LEVEL environment varaibles at APICAST deployment level
+	-- oc rsh apicast-xxxx
+	-- tail -f /tmp/apicast_log_file.muis | grep -i httpbasicauth.lua
+	ngx.log(ngx.STDERR, 'auth_header: ', auth_header)
 	
+
 	if auth_header ~= nil and auth_header:find(" ") ~= nil then
 	
 		auth_provided = ngx.decode_base64(string.sub(auth_header, 7))
-  
-		io.write("auth_provided : |" .. tostring(auth_provided) .. "|\n")
-		io.write("auths_configured : |" .. tostring(auths_configured) .. "|\n")
 		
-		pos = string.find(string.lower(auths_configured),auth_provided,true)
-		--io.write("pos : |" .. tostring(pos) .. "|\n")
+		ngx.log(ngx.STDERR, 'auth_provided: ', auth_provided)
+		ngx.log(ngx.STDERR, 'auths_configured: ', auths_configured)
 		
-		if pos ~= nil then
-			user_authenticated = true
+		auths_configured_split = mysplit(auths_configured,"|")
+		for _, auth_configured in ipairs(auths_configured_split) do
+			auth_provided_split = mysplit(auth_provided,"|")
+			auth_configured_split = mysplit(auth_configured,"|")
+			-- check if user and pass provided in the http basic auth match (one) current  auth_configured in this for loop
+			if auth_provided_split[1]==auth_configured_split[1] and auth_provided_split[2]==auth_configured_split[2] then
+				user_authenticated = true
+				ngx.log(ngx.STDERR, 'FOUND A MATCH for auth_configured: ', auth_configured)
+				break
+			else
+				ngx.log(ngx.STDERR, 'NO MATCH for auth_configured: ', auth_configured)
+			end
 		end
 	end
-	
-	io.close(file)
+
 end
 
 
@@ -59,31 +64,6 @@ function _M:access()
 	end
  
   -- ngx.exit(ngx.HTTP_FORBIDDEN)
-end
-
-function _M:content()
-  -- can create content instead of connecting to upstream
-end
-
-function _M:post_action()
-  -- do something after the response was sent to the client
-end
-
-function _M:header_filter()
-  -- can change response headers
-end
-
-function _M:body_filter()
-  -- can read and change response body
-  -- https://github.com/openresty/lua-nginx-module/blob/master/README.markdown#body_filter_by_lua
-end
-
-function _M:log()
-  -- can do extra logging
-end
-
-function _M:balancer()
-  -- use for example require('resty.balancer.round_robin').call to do load balancing
 end
 
 return _M
