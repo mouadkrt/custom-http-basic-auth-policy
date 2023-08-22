@@ -1,0 +1,16 @@
+{
+  "$schema": "http://apicast.io/policy-v1/schema#manifest#",
+  "name": "HTTP Basic auth",
+  "summary": "",
+  "description": "Policy for checking Basic auth in HTTP header",
+  "version": "0.1",
+  "configuration": {
+    "type": "object",
+    "properties": {
+        "http_basic_users": {
+          "description": "Type here the list if users and their password in the following format : user1:pass1;user2:pass2;user3:pass3 .. etc",
+          "type": "string"
+        }
+    }
+  }
+}
