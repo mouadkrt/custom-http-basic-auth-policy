@@ -49,6 +49,12 @@ function _M:rewrite()
 				ngx.log(ngx.STDERR, 'NO MATCH for auth_configured: ', auth_configured)
 			end
 		end
+	else
+		ngx.log(ngx.STDERR, "Informations d'identification manquantes ! Sending back 401")
+		ngx.status = 401
+		-- ngx.req.set_header('WWW-Authenticate', '123456')
+		ngx.header['WWW-Authenticate'] = 'Basic realm="3scale"'
+		ngx.say("Informations d'identification manquantes !")
 	end
 
 end
