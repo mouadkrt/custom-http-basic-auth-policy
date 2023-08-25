@@ -38,9 +38,13 @@ function _M:rewrite()
 		
 		auths_configured_split = mysplit(auths_configured,"|")
 		for _, auth_configured in ipairs(auths_configured_split) do
-			auth_provided_split = mysplit(auth_provided,"|")
-			auth_configured_split = mysplit(auth_configured,"|")
+			auth_provided_split = mysplit(auth_provided,":")
+			auth_configured_split = mysplit(auth_configured,":")
 			-- check if user and pass provided in the http basic auth match (one) current  auth_configured in this for loop
+		        ngx.log(ngx.STDERR,'auth_provided_split[1]: ', auth_provided_split[1])
+			ngx.log(ngx.STDERR,'auth_configured_split[1]: ', auth_configured_split[1])
+			ngx.log(ngx.STDERR,'auth_provided_split[2]: ', auth_provided_split[2])
+			ngx.log(ngx.STDERR,'auth_configured_split[2]: ',auth_configured_split[2])
 			if auth_provided_split[1]==auth_configured_split[1] and auth_provided_split[2]==auth_configured_split[2] then
 				user_authenticated = true
 				ngx.log(ngx.STDERR, 'FOUND A MATCH for auth_configured: ', auth_configured)
