@@ -50,7 +50,7 @@ function _M:rewrite()
 				ngx.log(ngx.INFO, 'FOUND A MATCH for auth_configured: ', auth_configured)
 				break
 			else
-				ngx.log(ngx.WARN, 'NO MATCH for auth_configured: ', auth_configured)
+				ngx.log(ngx.NOTICE, 'NO MATCH for auth_configured: ', auth_configured)
 			end
 		end
 	else
