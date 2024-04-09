@@ -54,7 +54,7 @@ function _M:rewrite()
 			end
 		end
 	else
-		ngx.log(ngx.STDERR, "Informations d'identification manquantes ! Sending back 401")
+		ngx.log(ngx.ERR, "Informations d'identification manquantes ! Sending back 401")
 		ngx.status = 401
 		-- ngx.req.set_header('WWW-Authenticate', '123456')
 		ngx.header['WWW-Authenticate'] = 'Basic realm="3scale"'
@@ -70,7 +70,7 @@ function _M:access()
   
 	if not user_authenticated then 
 		ngx.status = 403
-		ngx.log(ngx.STDERR, "Sending back HTTP 403 : HTTP Basic auth credentials does NOT match")
+		ngx.log(ngx.ERR, "Sending back HTTP 403 : HTTP Basic auth credentials does NOT match")
 		ngx.say("HTTP Basic auth credentials does NOT match")
 	end
  
