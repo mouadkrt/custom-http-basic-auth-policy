@@ -3,6 +3,8 @@
 local _M = require('apicast.policy').new('httpbasicauth', '0.1')
 -- local mt = { __index = _M }
 
+local new = _M.new
+
 function _M.new(config)
 	-- ngx.ctx.auths_configured = config.http_basic_users
 	-- ngx.log(ngx.INFO, '_M.new(config) : auths_configured : ', config.http_basic_users)
